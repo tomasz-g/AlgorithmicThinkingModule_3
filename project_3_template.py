@@ -9,10 +9,14 @@ hierarchical_clustering(cluster_list, num_clusters)
 kmeans_clustering(cluster_list, num_clusters, num_iterations)
 
 where cluster_list is a 2D list of clusters in the plane
+
+Note!!
+Uncomment line 20 and comment out line 19 to test by OwlTest 
 """
 
 import math
 import classClaster as alg_cluster
+#import alg_cluster
 
 
 
