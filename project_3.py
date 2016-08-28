@@ -11,10 +11,11 @@ kmeans_clustering(cluster_list, num_clusters, num_iterations)
 where cluster_list is a 2D list of clusters in the plane
 
 Note!!
-Uncomment line 20 and comment out line 19 and 18 to test by OwlTest 
+Uncomment line 21 and comment out line 20 and 19 to test by OwlTest 
 """
 
 import math
+from copy import deepcopy
 import classClaster as alg_cluster
 import clasters_input_for_tests as cl
 #import alg_cluster
@@ -158,15 +159,16 @@ def hierarchical_clustering(cluster_list, num_clusters):
     Output: List of clusters whose length is num_clusters
     """
 
-    while len(cluster_list) > num_clusters:
-        cluster_list.sort(key = lambda cluster: cluster.horiz_center())
-        closest_clusters = fast_closest_pair(cluster_list)
-        cluster_1 = cluster_list[closest_clusters[1]]
-        cluster_2 = cluster_list[closest_clusters[2]]
+    clusters = deepcopy(cluster_list)
+    while len(clusters) > num_clusters:
+        clusters.sort(key = lambda cluster: cluster.horiz_center())
+        closest_clusters = fast_closest_pair(clusters)
+        cluster_1 = clusters[closest_clusters[1]]
+        cluster_2 = clusters[closest_clusters[2]]
         cluster_1.merge_clusters(cluster_2)
-        cluster_list.remove(cluster_2)        
+        clusters.remove(cluster_2)        
     
-    return cluster_list
+    return clusters
 
 ######################################################################
 # Code for k-means clustering
@@ -182,66 +184,35 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
     """
 
     # position initial clusters at the location of clusters with largest populations
-    """
-    if len(cluster_list) <= num_clusters:
-        return cluster_list
-    
-    clusters_centers = []
-    for cluster in cluster_list:
-        if len(clusters_centres) < num_clusters:
-            clusters_centres.append(cluster.copy())
-        else:
-            clusters_centres.sort(key = lambda cluster: cluster.total_population())
-            if cluster.total_population() > clusters_centres[0].total_population():
-                clusters_centres.remove(clusters_centres[0])
-                clusters_centres.append(cluster.copy())
-                
-    for dummy_i in xrange(num_iterations):
-        clusters = [alg_cluster.Cluster(set([]), cluster.horiz_center(), cluster.vert_center(), 0, 0) for cluster in clusters_centres]
 
-        for cluster_2 in cluster_list:
-            smallest_dist_cluster = alg_cluster.Cluster(set([]), float('inf'), float('inf'), 0, 0)
-            for cluster_1 in clusters:
-                distance = cluster_1.distance(cluster_2)
-                
-        
-
-    
-    return clusters_centers
-    """
-
-    if len(cluster_list) <= num_clusters:
+    if len(cluster_list) <= num_clusters or num_iterations < 1:
         return cluster_list
 
-    kmeans_cluster_list = list(cluster_list)
+    kmeans_cluster_list = deepcopy(cluster_list)
     kmeans_cluster_list.sort(key = lambda cluster: cluster.total_population())
-
+      
     clusters_centers = []
-    for cluster in range(num_clusters):
-        clusters_centers.append(kmeans_cluster_list[cluster].horiz_center(), kmeans_cluster_list[cluster].vert_center())
-    print('kmeans')
-    print kmeans_cluster_list
-    print clusters_centers
+    for cluster in xrange((len(kmeans_cluster_list) -1), (len(kmeans_cluster_list) - 1 - num_clusters), -1):
+        clusters_centers.append((kmeans_cluster_list[cluster].horiz_center(), kmeans_cluster_list[cluster].vert_center()))
 
-    
+    for dummy_i in xrange(num_iterations):
+        new_clusters = [alg_cluster.Cluster(set([]), cluster[0], cluster[1], 0, 0) for cluster in clusters_centers]
 
+        for cluster in cluster_list:
+            
+            closest_cluster_distance = float('inf')
+            for dist in xrange(len(clusters_centers)):
+                
+                horiz_dist = clusters_centers[dist][0] - cluster.horiz_center()
+                vert_dist = clusters_centers[dist][1] - cluster.vert_center()
+                cluster_distance = math.sqrt(horiz_dist ** 2 + vert_dist ** 2)
+                if cluster_distance < closest_cluster_distance:
+                    closest_cluster_distance = cluster_distance
+                    closest_cluster_idx = dist
+                    
+            new_clusters[closest_cluster_idx].merge_clusters(cluster)
 
-
-
-
-
-    
+        clusters_centers = [(cluster.horiz_center(), cluster.vert_center()) for cluster in new_clusters]
         
-    
-    
-    
 
-
-
-
-
-
-
-    
-
-
+    return new_clusters

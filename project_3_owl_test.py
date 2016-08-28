@@ -11,13 +11,13 @@ kmeans_clustering(cluster_list, num_clusters, num_iterations)
 where cluster_list is a 2D list of clusters in the plane
 
 Note!!
-Uncomment line 20 and comment out line 19 and 18 to test by OwlTest 
+Uncomment line 20 and comment out line 18 and 19 to test by OwlTest 
 """
 
 import math
-import classClaster as alg_cluster
-import clasters_input_for_tests as cl
-#import alg_cluster
+#import classClaster as alg_cluster
+#import clasters_input_for_tests as cl
+import alg_cluster
 
 
 
@@ -182,66 +182,36 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
     """
 
     # position initial clusters at the location of clusters with largest populations
-    """
-    if len(cluster_list) <= num_clusters:
-        return cluster_list
     
-    clusters_centers = []
-    for cluster in cluster_list:
-        if len(clusters_centres) < num_clusters:
-            clusters_centres.append(cluster.copy())
-        else:
-            clusters_centres.sort(key = lambda cluster: cluster.total_population())
-            if cluster.total_population() > clusters_centres[0].total_population():
-                clusters_centres.remove(clusters_centres[0])
-                clusters_centres.append(cluster.copy())
-                
-    for dummy_i in xrange(num_iterations):
-        clusters = [alg_cluster.Cluster(set([]), cluster.horiz_center(), cluster.vert_center(), 0, 0) for cluster in clusters_centres]
-
-        for cluster_2 in cluster_list:
-            smallest_dist_cluster = alg_cluster.Cluster(set([]), float('inf'), float('inf'), 0, 0)
-            for cluster_1 in clusters:
-                distance = cluster_1.distance(cluster_2)
-                
-        
-
-    
-    return clusters_centers
-    """
-
     if len(cluster_list) <= num_clusters:
         return cluster_list
 
     kmeans_cluster_list = list(cluster_list)
     kmeans_cluster_list.sort(key = lambda cluster: cluster.total_population())
-
+      
     clusters_centers = []
-    for cluster in range(num_clusters):
-        clusters_centers.append(kmeans_cluster_list[cluster].horiz_center(), kmeans_cluster_list[cluster].vert_center())
-    print('kmeans')
-    print kmeans_cluster_list
-    print clusters_centers
-
-    
+    clusters_centers_dict = {}
+    for cluster in range((len(kmeans_cluster_list) -1), (len(kmeans_cluster_list) - 1 - num_clusters), -1):
+        clusters_centers.append((kmeans_cluster_list[cluster].horiz_center(), kmeans_cluster_list[cluster].vert_center()))
+        clusters_centers_dict[kmeans_cluster_list[cluster].total_population()] = (kmeans_cluster_list[cluster].horiz_center(), kmeans_cluster_list[cluster].vert_center())
 
 
+    for dummy_i in range(num_iterations):
+        empty_sets = [alg_cluster.Cluster(set([]), cluster[0], cluster[1], 0, 0) for cluster in clusters_centers]
 
+        kmeans_cluster_list_2 = list(cluster_list)
+        for cluster in kmeans_cluster_list_2:
+            closest_cluster_distance = float('inf')
+            for dummy_j in range(len(clusters_centers)):
+                horiz_dist = clusters_centers[dummy_j][0] - cluster.horiz_center()
+                vert_dist = clusters_centers[dummy_j][1] - cluster.vert_center()
+                cluster_distance = math.sqrt(horiz_dist ** 2 + vert_dist ** 2)
+                if cluster_distance < closest_cluster_distance:
+                    closest_cluster_distance = cluster_distance
+                    closest_cluster = dummy_j
+            empty_sets[closest_cluster].merge_clusters(cluster)
 
-
-
-    
+        clusters_centers = [(cluster.horiz_center(), cluster.vert_center()) for cluster in empty_sets]
         
-    
-    
-    
 
-
-
-
-
-
-
-    
-
-
+    return empty_sets
